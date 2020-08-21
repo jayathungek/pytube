@@ -20,6 +20,7 @@ from pytube.cipher import Cipher
 from pytube.exceptions import HTMLParseError
 from pytube.exceptions import LiveStreamError
 from pytube.exceptions import RegexMatchError
+from pytube.exceptions import VideoUnavailable
 from pytube.helpers import regex_search
 
 logger = logging.getLogger(__name__)
@@ -287,7 +288,12 @@ def apply_descrambler(stream_data: Dict, key: str) -> None:
     if key == "url_encoded_fmt_stream_map" and not stream_data.get(
         "url_encoded_fmt_stream_map"
     ):
-        formats = json.loads(stream_data["player_response"])["streamingData"]["formats"]
+        response = json.loads(stream_data["player_response"])
+        if response["playabilityStatus"]["status"] == "UNPLAYABLE":
+            raise VideoUnavailable(response["videoDetails"]["videoId"]) 
+        formats = response["streamingData"][
+            "formats"
+        ]
         formats.extend(
             json.loads(stream_data["player_response"])["streamingData"][
                 "adaptiveFormats"
