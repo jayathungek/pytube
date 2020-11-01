@@ -290,10 +290,8 @@ def apply_descrambler(stream_data: Dict, key: str) -> None:
     ):
         response = json.loads(stream_data["player_response"])
         if response["playabilityStatus"]["status"] == "UNPLAYABLE":
-            raise VideoUnavailable(response["videoDetails"]["videoId"]) 
-        formats = response["streamingData"][
-            "formats"
-        ]
+            raise VideoUnavailable(response["videoDetails"]["videoId"])
+        formats = response["streamingData"]["formats"]
         formats.extend(
             json.loads(stream_data["player_response"])["streamingData"][
                 "adaptiveFormats"
